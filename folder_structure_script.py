@@ -1,6 +1,6 @@
 #Script for copying files containing 'nolabels' or 'IAR' from the same folder to two separate folders, one for each type of image.
 #Currently there is a minor bug, such that this will not work for both files simultaneously. In order to make lines 25-27 work, lines 22-24 
-need to be commented out and elif in line 25 needs to be replaced with an if.
+#need to be commented out and elif in line 25 needs to be replaced with an if.
 
 import shutil
 from glob import glob
