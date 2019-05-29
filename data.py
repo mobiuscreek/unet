@@ -6,7 +6,7 @@ import glob
 import skimage.io as io
 import skimage.transform as trans
 import matplotlib.pyplot as plt
-
+from glob import glob
 
 def adjustData(img,mask,flag_multi_class,num_class):
     if(flag_multi_class):
@@ -67,16 +67,17 @@ def dataGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image_
 
 
 
-def testGenerator(test_path,num_image = 30,target_size = (256,256),flag_multi_class = False,as_gray = True):
-    for i in range(num_image):
-        img = io.imread(os.path.join(test_path,"%d.png"%i),as_gray = as_gray)
+def test_file_reader(test_path,target_size = (256,256),as_gray = True):
+    extensions = glob(os.path.join(test_path,'*.jpg'))
+    for filename in extensions:
+        img = io.imread(filename,as_gray = as_gray)
         img = img / 255
         img = trans.resize(img,target_size)
-        img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
+        img = np.reshape(img,img.shape+(1,))
         img = np.reshape(img,(1,)+img.shape)
         yield img
 
-
+'''
 def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
     image_name_arr = glob.glob(os.path.join(image_path,"%s*.png"%image_prefix))
     image_arr = []
@@ -92,7 +93,7 @@ def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,ima
     image_arr = np.array(image_arr)
     mask_arr = np.array(mask_arr)
     return image_arr,mask_arr
-
+'''
 
 
 
@@ -111,3 +112,9 @@ def plot_metrics(history_obj):
     plt.xlabel('epoch')  
     plt.legend(['loss', 'accuracy'], loc='upper left') 
     plt.show()   
+
+
+
+if __name__ == "__main__":
+    test_file_reader('data/membrane/test/')
+                      
