@@ -1,5 +1,5 @@
-from model import *
-from data import *
+import unet_model
+import data_helper
         
 BATCH_SIZE = 2
         
@@ -11,18 +11,18 @@ data_gen_args = dict(rotation_range=0.2,
                     horizontal_flip=True,
                     fill_mode='nearest')
 
-myGene = dataGenerator(BATCH_SIZE,'data/membrane/train','image','label',data_gen_args,save_to_dir = None)
+myGene = data_helper.dataGenerator(BATCH_SIZE,'data/membrane/train','image','label',data_gen_args,save_to_dir = None)
 
-model = unet()
+model = unet_model.unet()
 #model_checkpoint = ModelCheckpoint('unet_membrane.hdf5', monitor='loss',verbose=1, save_best_only=True)
 history = model.fit_generator(myGene,steps_per_epoch=1,epochs=3)
 
-figure = plot_metrics(history)
+figure = data_helper.plot_metrics(history)
 
-testGene = test_file_reader("data/membrane/test")
+testGene = data_helper.test_file_reader("data/membrane/test")
 
 #validation set
 loss, acc = model.evaluate_generator(myGene, steps=10)
 
 results = model.predict_generator(testGene,10,verbose=1)
-saveResult("data/test",results)
+data_helper.saveResult("data/test",results)
