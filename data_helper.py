@@ -4,7 +4,6 @@ import os
 import skimage.transform as trans
 import matplotlib.pyplot as plt
 from glob import glob
-import pdb
 
 from skimage.color import rgb2gray
 
@@ -14,6 +13,14 @@ def adjustData(img,mask):
         mask[mask > 0.5] = 1
         mask[mask <= 0.5] = 0
         return (img,mask)
+
+def adjustDataTest(img,mask):
+    for i in range(len(img)):
+        img = img /255
+        mask = mask/255
+        mask[mask > 0.5] =1
+        mask[mask <= 0.5] = 0
+        yield (img,mask)
 
 
 
@@ -49,10 +56,6 @@ def load_data_Kfold(path_X,path_Y,k):
     X_train = []
     y_train = []
     y_valid = []
-    X = np.zeros(shape=(1,1))
-    X_validation = np.zeros(shape=(1,1))
-    Y = np.zeros(shape=(1,1))
-    Y_validation = np.zeros(shape=(1,1))
     for train_index, test_index in kf.split(X_train_np):
         X_train.append([np.sort(X_train_np[train_index])])
         X_valid.append([np.sort(X_train_np[test_index])])
@@ -75,31 +78,6 @@ def get_items(list_of_lists):
 
 
 
-'''
-for train_index, test_index in kf.split(X_train_np):
-        if First_iteration:
-            X_valid.append(X_train_np[test_index])
-            X_train.append(X_train_np[train_index])
-            y_train.append(Y_train_np[train_index])
-            y_valid.append(Y_train_np[test_index])
-            X_valid = np.asarray(X_valid)
-            X_train = np.asarray(X_train)
-            y_train = np.asarray(y_train)
-            y_valid = np.asarray(y_valid)
-            First_iteration = False
-        else:
-          pdb.set_trace()
-          X =  np.vstack((X_train,X_train_np[train_index].reshape(1,X_train_np[train_index].shape[0])))
-          X_validation =  np.vstack((X_valid,X_train_np[test_index].reshape(1,X_train_np[test_index].shape[0])))
-          Y =  np.vstack((y_train,Y_train_np[train_index].reshape(1,Y_train_np[train_index].shape[0])))
-          Y_validation =  np.vstack((y_valid,Y_train_np[test_index].reshape(1,Y_train_np[test_index].shape[0])))
-      #X_train.append(X_train_np[train_index])
-        # np.append(X_valid,X_train_np[test_index])
-        # np.append(y_train,Y_train_np[train_index])
-        # np.append(y_valid,Y_train_np[test_index])
-        #y_train, y_valid = Y_train_np[train_index], Y_train_np[test_index]
-    return X, X_validation, Y, Y_validation
-'''
 def test_file_reader(test_path,target_size = (256,256),as_gray = True):
     '''
         Reads path, resized and returns all images on specified folder
@@ -130,9 +108,4 @@ def plot_metrics(history_obj):
     plt.xlabel('epoch')  
     plt.legend(['loss', 'accuracy'], loc='upper left') 
     fig.savefig('model_performance.png', dpi=1000)   
-    
-
-
-if __name__ == "__main__":
-    load_data_Kfold('data\\membrane\\train\\image','data\\membrane\\train\\label',4)
     
