@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import skimage.transform as trans
 
-from skimage.filters import threshold_otsu
 from glob import glob
 from keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import KFold
 from skimage import io
+
 
 
 def dataGenerator(batch_size,im_data ,label_data, aug_dict,image_save_prefix  = "image", 
@@ -33,9 +33,9 @@ def dataGenerator(batch_size,im_data ,label_data, aug_dict,image_save_prefix  = 
         seed = seed)
     train_generator = zip(image_generator, mask_generator)
     for (img,mask) in train_generator:
-            glob_thresh = threshold_otsu(mask)
-            binary_mask = mask > glob_thresh
-            yield (img,binary_mask)       
+            mask[mask>0.5]=1
+            mask[mask<=0.5]=0
+            yield (img, mask)       
 
 
 
@@ -45,25 +45,15 @@ def load_data_Kfold(path_X,path_Y,k):
     train_labels = glob(os.path.join(path_Y,'*.jpg'))
     X_train_np = np.asarray(train_files)
     Y_train_np = np.asarray(train_labels)
-    kf = KFold(n_splits=k,shuffle=True,random_state=1)
-    X_valid = []
-    X_train = []
-    y_train = []
-    y_valid = []
-    for train_index, test_index in kf.split(X_train_np):
-        X_train.append([np.sort(X_train_np[train_index])])
-        X_valid.append([np.sort(X_train_np[test_index])])
-        y_train.append([np.sort(Y_train_np[train_index])])
-        y_valid.append([np.sort(Y_train_np[test_index])])
-    return X_train, X_valid, y_train, y_valid    
+    folds = list(KFold(n_splits=k,shuffle=True,random_state=1).split(X_train_np))
+    return folds, X_train_np, Y_train_np 
 
 
 
-def get_items(list_of_lists, target_dim = (256,256)):
-    image_list = [] 
-    flat_list = [item for list_of_lists[0] in list_of_lists for item in list_of_lists[0]]
-    for j in range(len(flat_list)):
-        img = io.imread(flat_list[j],as_gray = True)
+def get_items(array_of_filenames, target_dim = (256,256)):
+    image_list = []
+    for j in range(len(array_of_filenames)):
+        img = io.imread(array_of_filenames[j],as_gray = True)
         img = trans.resize(img, target_dim, mode='constant')
         image_list.append(img)
         image_np = np.asarray(image_list)

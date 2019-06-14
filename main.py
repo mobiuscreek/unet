@@ -13,26 +13,30 @@ data_gen_args = dict(rotation_range=0.2,
                     horizontal_flip=True,
                     fill_mode='nearest')
 
-im_path = 'data/membrane/train/image'
-label_path = 'data/membrane/train/label'
+im_path = 'data/membrane/train/im_test'
+label_path = 'data/membrane/train/label_test'
 im_test = 'data/membrane/train/im_test'
 
-k = 2
+k = 5
 seed = 1
 
 #Create folds
-x_train,x_validation,y_train,y_validation = load_data_Kfold(im_path,label_path,k)
+folds, x_train, y_train = load_data_Kfold(im_path,label_path,k)
 
 #Load model
 model = unet_model.unet()
 
 #CV and training
-for fold_number in range(k):
-    x_training = get_items(x_train[fold_number])
-    y_training = get_items(y_train[fold_number])
-    x_valid = get_items(x_validation[fold_number])
-    y_valid = get_items(y_validation[fold_number])
+for fold_number, (train_idx,val_idx) in enumerate(folds)
     print(f'Training fold {fold_number}')
+    x_training_filenames = x_train[train_idx]
+    y_training_filenames = y_train[train_idx]
+    x_valid_filenames = x_train[val_idx]
+    y_valid_filenames = y_train[val_idx]
+    x_training = get_items(x_training_filenames)
+    y_training = get_items(y_training_filenames)
+    x_valid = get_items(x_valid_filenames)
+    y_valid = get_items(y_valid_filenames)
     generator = dataGenerator(BATCH_SIZE, x_training,y_training,data_gen_args,seed = 1) 
     model.fit_generator(generator,steps_per_epoch=len(x_training)/BATCH_SIZE,epochs=3,verbose=1,validation_data = (x_valid,y_valid))
 
