@@ -1,7 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.preprocessing.image import ImageDataGenerator
-
+from glob import glob
+import os
+import skimage.transform as trans
+from sklearn.model_selection import KFold
+from skimage import io
 # Runtime data augmentation
 def get_augmented(
     X_train, 
@@ -47,6 +51,28 @@ def get_augmented(
         return train_generator, val_generator
     else:
         return train_generator
+
+
+def load_data_Kfold(path_X,path_Y,k):
+    train_files = glob(os.path.join(path_X,'*.jpg'))
+    train_labels = glob(os.path.join(path_Y,'*.jpg'))
+    X_train_np = np.asarray(train_files)
+    Y_train_np = np.asarray(train_labels)
+    folds = list(KFold(n_splits=k,shuffle=True,random_state=1).split(X_train_np))
+    return folds, X_train_np, Y_train_np 
+
+
+
+def get_items(array_of_filenames, target_dim = (512,512)):
+    image_list = []
+    for j in range(len(array_of_filenames)):
+        img = io.imread(array_of_filenames[j],as_gray = True)
+        img = trans.resize(img, target_dim, mode='constant')
+        image_list.append(img)
+        image_np = np.asarray(image_list)
+        image_np = np.expand_dims(image_np,axis=3)
+    return image_np   
+
 
 
 def plot_segm_history(history, metrics=['iou', 'val_iou'], losses=['loss', 'val_loss']):

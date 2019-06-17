@@ -3,6 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#Folders
+input/
+docs/
+notebooks/
+
+#VE
+Pipfile
+Pipfile.lock
+
 # C extensions
 *.so
 
